@@ -5,6 +5,7 @@
 #include "d3dApp.h"
 #include <WindowsX.h>
 #include <sstream>
+#include <iostream>
 
 namespace
 {
@@ -375,11 +376,24 @@ bool D3DApp::InitDirect3D()
 #if defined(DEBUG) || defined(_DEBUG)  
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+	IDXGIFactory * pFactory = NULL;
+
+	CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
+
+	UINT i = 0;
+	IDXGIAdapter * pAdapter;
+	std::vector <IDXGIAdapter*> vAdapters;
+	while (pFactory->EnumAdapters(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		vAdapters.push_back(pAdapter);
+		++i;
+		OutputDebugString(L"test\n");
+	}
 
 	D3D_FEATURE_LEVEL featureLevel;
 	HRESULT hr = D3D11CreateDevice(
-			0,                 // default adapter
-			md3dDriverType,
+			vAdapters.at(0),                 // default adapter
+			D3D_DRIVER_TYPE_UNKNOWN,
 			0,                 // no software device
 			createDeviceFlags, 
 			0, 0,              // default feature level array
